@@ -223,55 +223,18 @@ DECLARE FUNCTION ALTER_APOAPSIS_TO {
 	WAIT 0.1.
 }
 
-DECLARE PARAMETER DESIRED_ORBIT.
+DECLARE PARAMETER APSIS.
+DECLARE PARAMETER COMMAND.
+DECLARE PARAMETER VALUE.
 
-IF DESIRED_ORBIT < 90000 {
-	PRINT "Unable to achieve orbits of altitude less than 90,000".
-	PRINT "Assuming 90,000 as target instead".
-	SET DESIRED_ORBIT TO 90000.
+IF APSIS = "periapsis" {
+	IF COMMAND = "set" {
+		ALTER_PERIAPSIS_TO(VALUE).
+	}
 }
 
-PRINT "Main throttle up.  1 second to stabilize it.".
-LOCK STEERING TO UP.
-LOCK THROTTLE TO 1.0.   // 1.0 is the max, 0.0 is idle.
-WAIT 1. // give throttle time to adjust.
-
-UNTIL SHIP:MAXTHRUST > 0 {
-    WAIT 0.5. // pause half a second between stage attempts.
-    PRINT "Stage activated.".
-    STAGE. // same as hitting the spacebar.
+IF APSIS = "apoapsis" {
+	IF COMMAND = "set" {
+		ALTER_APOAPSIS_TO(VALUE).
+	}
 }
-
-UNTIL SHIP:APOAPSIS > DESIRED_ORBIT {
-	DROP_DEAD_ENGINES().
-	AIM_FOR_ORBIT(DESIRED_ORBIT, 300).
-	THROTTLE_FOR_ATMOSPHERE(40).
-	WAIT 0.1.
-}
-
-LOCK STEERING TO UP + R(0, -90, 0).
-LOCK THROTTLE TO 0.0.
-
-WAIT 3.
-
-STAGE. // same as hitting the spacebar.
-
-WAIT 3.
-
-STAGE. // same as hitting the spacebar.
-
-WAIT 1.
-
-ALTER_PERIAPSIS_TO(DESIRED_ORBIT).
-
-PRINT "Performing two more burns to touch up the orbit.".
-
-IF ETA:PERIAPSIS < ETA:APOAPSIS{
-	ALTER_APOAPSIS_TO(DESIRED_ORBIT).
-	ALTER_PERIAPSIS_TO(DESIRED_ORBIT).
-} ELSE {
-	ALTER_PERIAPSIS_TO(DESIRED_ORBIT).
-	ALTER_APOAPSIS_TO(DESIRED_ORBIT).
-}
-
-PRINT "Operation complete.".
