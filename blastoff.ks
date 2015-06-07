@@ -249,29 +249,12 @@ UNTIL SHIP:APOAPSIS > DESIRED_ORBIT {
 	WAIT 0.1.
 }
 
-LOCK STEERING TO UP + R(0, -90, 0).
-LOCK THROTTLE TO 0.0.
+LOCK STEERING TO FORWARD().
+LOCK THROTTLE TO 1.
 
-WAIT 3.
-
-STAGE. // same as hitting the spacebar.
-
-WAIT 3.
-
-STAGE. // same as hitting the spacebar.
-
-WAIT 1.
-
-ALTER_PERIAPSIS_TO(DESIRED_ORBIT).
-
-PRINT "Performing two more burns to touch up the orbit.".
-
-IF ETA:PERIAPSIS < ETA:APOAPSIS{
-	ALTER_APOAPSIS_TO(DESIRED_ORBIT).
-	ALTER_PERIAPSIS_TO(DESIRED_ORBIT).
-} ELSE {
-	ALTER_PERIAPSIS_TO(DESIRED_ORBIT).
-	ALTER_APOAPSIS_TO(DESIRED_ORBIT).
+UNTIL SHIP:PERIAPSIS > 72000 {
+	DROP_DEAD_ENGINES().
 }
 
 PRINT "Operation complete.".
+PRINT "You may want to circularize your orbit though.".
