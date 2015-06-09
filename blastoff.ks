@@ -173,9 +173,15 @@ DECLARE FUNCTION ALTER_PERIAPSIS_TO {
 		LOCK STEERING TO BACKWARD().
 	}
 
+	RCS ON.
+
+	PRINT "Waiting " + ETA:APOAPSIS - MAX(BURN_DURATION/2, 1) + "s to let the ship stabilize.".
+
 	WAIT UNTIL ETA:APOAPSIS < MAX(BURN_DURATION/2, 1).
 
 	PERFORM_BURN(DV).
+
+	RCS OFF.
 
 	PRINT "Periapsis should now be:".
 	PRINT DESIRED_PERIAPSIS.
@@ -202,20 +208,16 @@ DECLARE FUNCTION ALTER_APOAPSIS_TO {
 		LOCK STEERING TO BACKWARD().
 	}
 
+	RCS ON.
+
+	PRINT "Waiting " + ETA:PERIAPSIS - MAX(BURN_DURATION/2, 1) + "s to let the ship stabilize.".
+
 	WAIT UNTIL ETA:PERIAPSIS < MAX(BURN_DURATION/2, 1).
 
-	PRINT "STARTING SPEED:".
-	PRINT VELOCITY:ORBIT:MAG.
-
-	SET VS TO VELOCITY:ORBIT:MAG.
 
 	PERFORM_BURN(DV).
 
-	PRINT "ENDING SPEED:".
-	PRINT VELOCITY:ORBIT:MAG.
-
-	PRINT "ACTUAL DV OF:".
-	PRINT VELOCITY:ORBIT:MAG - VS.
+	RCS OFF.
 
 	PRINT "Apoapsis should now be:".
 	PRINT DESIRED_APOAPSIS.
@@ -230,6 +232,8 @@ IF DESIRED_ORBIT < 90000 {
 	PRINT "Assuming 90,000 as target instead".
 	SET DESIRED_ORBIT TO 90000.
 }
+
+SAS ON.
 
 PRINT "Main throttle up.  1 second to stabilize it.".
 LOCK STEERING TO UP.
@@ -258,3 +262,7 @@ UNTIL SHIP:PERIAPSIS > 72000 {
 
 PRINT "Operation complete.".
 PRINT "You may want to circularize your orbit though.".
+
+//set throttle to 0 just in case.
+SET SHIP:CONTROL:PILOTMAINTHROTTLE TO 0.
+SAS OFF.
